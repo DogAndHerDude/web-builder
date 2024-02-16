@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+//generator client {
+//  provider = "prisma-client-js"
+//}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id
+  email     String
+  site      Site[]
+  createdAt DateTime  @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("user")
+}
+
+model SiteDomTree {
+  id        String    @id
+  tree      Bytes
+  createdAt DateTime  @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("site_dom_tree")
+}
+
+model Site {
+  id        String    @id @default(uuid())
+  name      String
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @map("user_id")
+  createdAt DateTime  @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("site")
+}
+
+model PublishTask {
+  id          String    @id
+  createdAt   DateTime  @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+
+  @@map("publish_task")
+}

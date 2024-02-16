@@ -50,6 +50,6 @@ export class CustomButton extends HTMLElement {
   }
 
   private onClick() {
-    console.log("Get memed, son!");
+    console.log("!");
   }
 }
