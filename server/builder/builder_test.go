@@ -1,12 +1,14 @@
-package site
+package builder
 
 import (
 	"strings"
 	"testing"
+
+	"app/db"
 )
 
 func TestTreeNodeToHTMLTagOnlyText(t *testing.T) {
-	node := &TreeNode{
+	node := &db.TreeNode{
 		Tag:         "#text",
 		TextContent: "Hello!",
 	}
@@ -26,12 +28,12 @@ func TestTreeNodeToHTMLTagOnlyText(t *testing.T) {
 // TestTreeNodeToHTMLTagWithChild creates a template
 // with tag and child in it
 func TestTreeNodeToHTMLTagWithChild(t *testing.T) {
-	children := make([]*TreeNode, 1)
-	children[0] = &TreeNode{
+	children := make([]*db.TreeNode, 1)
+	children[0] = &db.TreeNode{
 		Tag:         "#text",
 		TextContent: "Hi",
 	}
-	node := &TreeNode{
+	node := &db.TreeNode{
 		Tag:      "DIV",
 		Children: children,
 	}
@@ -55,12 +57,12 @@ func TestTreeNodeToHTMLTagWithClass(t *testing.T) {
 	classes := make([]string, 2)
 	classes[0] = "class1"
 	classes[1] = "class2"
-	children := make([]*TreeNode, 1)
-	children[0] = &TreeNode{
+	children := make([]*db.TreeNode, 1)
+	children[0] = &db.TreeNode{
 		Tag:         "#text",
 		TextContent: "Hi",
 	}
-	node := &TreeNode{
+	node := &db.TreeNode{
 		Tag:       "DIV",
 		Children:  children,
 		ClassList: classes,
@@ -84,19 +86,19 @@ func TestBuilPageHTMLToReturnContentInHTML(t *testing.T) {
 	classes := make([]string, 2)
 	classes[0] = "class1"
 	classes[1] = "class2"
-	children := make([]*TreeNode, 1)
-	children[0] = &TreeNode{
+	children := make([]*db.TreeNode, 1)
+	children[0] = &db.TreeNode{
 		Tag:         "#text",
 		TextContent: "Hi",
 	}
-	node := &TreeNode{
+	node := &db.TreeNode{
 		Tag:       "DIV",
 		Children:  children,
 		ClassList: classes,
 	}
-	nodes := make([]*TreeNode, 1)
+	nodes := make([]*db.TreeNode, 1)
 	nodes[0] = node
-	page := &Page{
+	page := &db.Page{
 		Title: "Hello",
 		Nodes: nodes,
 	}

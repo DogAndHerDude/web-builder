@@ -3,32 +3,34 @@ package site
 import (
 	"time"
 
+	"app/builder"
 	"app/db"
+	"app/publisher"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
-type SiteHandler interface {
-	GetSiteByID(id string)
-
-	CreateSite()
-
-	PublishSite(id string)
+type ISiteService interface {
+	GetSiteByID(ID string) (*db.Site, error)
+	CreateSite(userID string) (*db.Site, error)
+	PublishSite(ID string)
 }
 
 type SiteService struct {
-	DB *sqlx.DB
+	DB        *sqlx.DB
+	builder   builder.SiteBuilder
+	publisher publisher.Publisher
 }
 
-func (s *SiteService) GetSiteByID(id string) (*db.Site, error) {
+func (s *SiteService) GetSiteByID(ID string) (*db.Site, error) {
 	site := db.Site{}
 	err := s.DB.Select(&site, `
     SELECT * FROM site
     OUTER LEFT JOIN page
     ON site.id = page.site_id
     WHERE id=$1 LIMIT 1
-  `, id)
+  `, ID)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +73,7 @@ func (s *SiteService) CreateSite(userID string) (*db.Site, error) {
 	}
 
 	site := &db.Site{}
-	siteErr := db.DB.Get(site, "SELECT * FROM site OUTER LEFT JOIN page ON site.id = page.site_id")
+	siteErr := s.DB.Get(site, "SELECT * FROM site OUTER LEFT JOIN page ON site.id = page.site_id")
 	if siteErr != nil {
 		return nil, siteErr
 	}
@@ -79,9 +81,13 @@ func (s *SiteService) CreateSite(userID string) (*db.Site, error) {
 	return site, nil
 }
 
-func (s *SiteService) PublishSite(id string) {
+func (s *SiteService) PublishSite(ID string) {
 }
 
-func New(db *sqlx.DB) *SiteService {
-	return &SiteService{}
+func New(db *sqlx.DB, builder builder.SiteBuilder, publisher publisher.Publisher) *SiteService {
+	return &SiteService{
+		DB:        db,
+		builder:   builder,
+		publisher: publisher,
+	}
 }

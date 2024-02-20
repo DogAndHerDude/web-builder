@@ -1,10 +1,40 @@
-package site
+package builder
 
 import (
 	"bytes"
 	"html/template"
 	"strings"
+
+	"app/db"
 )
+
+type NodeTemplate struct {
+	Tag      string
+	Class    string
+	Children []string
+}
+
+type PageTemplate struct {
+	Title    string
+	Children []string
+}
+
+type PageBuildResult struct {
+	Slug    string
+	Content string
+	Pages   []*PageBuildResult
+}
+
+type BuildResult struct {
+	Pages   []*PageBuildResult
+	SiteMap string
+}
+
+type SiteBuilder interface {
+	BuildSite(site *db.Site) (*BuildResult, error)
+}
+
+type SiteBuilderService struct{}
 
 const (
 	pageTemplateName = "PageTemaplate"
@@ -54,7 +84,7 @@ var funcMap = template.FuncMap{
 	},
 }
 
-func treeNodeToHTML(node *TreeNode) (string, error) {
+func treeNodeToHTML(node *db.TreeNode) (string, error) {
 	if node.Tag == "#text" {
 		return node.TextContent, nil
 	}
@@ -97,7 +127,7 @@ func treeNodeToHTML(node *TreeNode) (string, error) {
 	return parsedTempalte.String(), nil
 }
 
-func buildPageHTML(page *Page) (string, error) {
+func buildPageHTML(page *db.Page) (string, error) {
 	tpl, err := template.New(pageTemplateName).Funcs(funcMap).Parse(pageTemplate)
 	if err != nil {
 		return "", err
@@ -128,8 +158,8 @@ func buildPageHTML(page *Page) (string, error) {
 	return parsedTemplate.String(), nil
 }
 
-func buildPageTree(page *Page) (*PageOutput, error) {
-	output := &PageOutput{
+func buildPageTree(page *db.Page) (*PageBuildResult, error) {
+	output := &PageBuildResult{
 		Slug: page.Slug,
 	}
 
@@ -149,19 +179,19 @@ func buildPageTree(page *Page) (*PageOutput, error) {
 				return nil, err
 			}
 
-			subPageOutput := &PageOutput{
+			subPageOutput := &PageBuildResult{
 				Slug:    subPage.Slug,
 				Content: subPageHTML,
 			}
-			output.SubPages = append(output.SubPages, subPageOutput)
+			output.Pages = append(output.Pages, subPageOutput)
 		}
 	}
 
 	return output, nil
 }
 
-func BuildSite(site *Site) (*SiteOutput, error) {
-	output := make([]*PageOutput, 0)
+func (s *SiteBuilderService) BuildSite(site *db.Site) (*BuildResult, error) {
+	output := make([]*PageBuildResult, 0)
 
 	for _, page := range site.Pages {
 		pageOutput, err := buildPageTree(page)
@@ -172,10 +202,14 @@ func BuildSite(site *Site) (*SiteOutput, error) {
 		output = append(output, pageOutput)
 	}
 
-	siteOutput := &SiteOutput{
+	siteOutput := &BuildResult{
 		Pages: output,
 		// TODO: build sitemap
 	}
 
 	return siteOutput, nil
+}
+
+func New() *SiteBuilderService {
+	return &SiteBuilderService{}
 }

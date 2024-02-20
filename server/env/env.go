@@ -7,19 +7,21 @@ import (
 )
 
 func Init() {
-  bytes, err := os.ReadFile(".env")
+	bytes, err := os.ReadFile(".env")
+	if err != nil {
+		log.Println("ERROR: Reading .env file failed.")
+		log.Fatalln(err)
+	}
 
-  if err != nil {
-    log.Println("ERROR: Reading .env file failed.")
-    log.Fatalln(err)
-  }
+	file := string(bytes)
 
-  file := string(bytes) 
+	for _, line := range strings.Split(file, "\n") {
+		if line == "" {
+			continue
+		}
 
-  for _, line := range strings.Split(file, "\n") {
+		keyValue := strings.SplitN(line, "=", 2)
 
-    keyValue := strings.SplitN(line, "=", 2)
-
-    os.Setenv(keyValue[0], keyValue[1])
-  }
+		os.Setenv(keyValue[0], keyValue[1])
+	}
 }

@@ -124,6 +124,7 @@ type User struct {
 	ID        string
 	Email     string
 	Password  string
+	Salt      string
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
@@ -132,6 +133,7 @@ type Site struct {
 	ID              string
 	Title           string
 	Pages           []*Page
+	IsPublished     bool `db:"is_published"`
 	Repository      string
 	UserID          string    `db:"user_id"`
 	CreatedAt       time.Time `db:"created_at"`

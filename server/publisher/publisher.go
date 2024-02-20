@@ -3,15 +3,15 @@ package publisher
 import (
 	"os"
 
+	"app/builder"
 	"app/db"
 	git_internal "app/git"
-	"app/site"
 
 	"github.com/go-git/go-git/v5"
 )
 
 type Publisher interface {
-	PublishSite(siteID string, site *db.Site, output *site.SiteOutput) error
+	PublishSite(siteID string, site *db.Site, output *builder.BuildResult) error
 }
 
 type PublisherService struct {
@@ -27,7 +27,7 @@ func removeTempFiles(list []string) {
 	}
 }
 
-func (s *PublisherService) writeFilesToDir(dname string, page *site.PageOutput) ([]string, error) {
+func (s *PublisherService) writeFilesToDir(dname string, page *builder.PageBuildResult) ([]string, error) {
 	fileList := make([]string, 0)
 	f, err := os.CreateTemp(dname, page.Slug+".html")
 	if err != nil {
@@ -36,8 +36,8 @@ func (s *PublisherService) writeFilesToDir(dname string, page *site.PageOutput) 
 
 	fileList = append(fileList, f.Name())
 
-	if page.SubPages != nil && len(page.SubPages) > 0 {
-		for _, subPage := range page.SubPages {
+	if page.Pages != nil && len(page.Pages) > 0 {
+		for _, subPage := range page.Pages {
 			subPageDname, err := os.MkdirTemp(dname, page.Slug)
 			if err != nil {
 				return nil, err
@@ -58,7 +58,7 @@ func (s *PublisherService) writeFilesToDir(dname string, page *site.PageOutput) 
 	return fileList, nil
 }
 
-func (s *PublisherService) PublishSite(siteID string, site *site.Site, output *site.SiteOutput) error {
+func (s *PublisherService) PublishSite(siteID string, site *db.Site, output *builder.BuildResult) error {
 	dname, err := os.MkdirTemp("", siteID)
 	fileList := make([]string, 0)
 	if err != nil {
