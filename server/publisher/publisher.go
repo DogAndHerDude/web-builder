@@ -3,16 +3,19 @@ package publisher
 import (
 	"os"
 
+	"app/db"
+	git_internal "app/git"
+	"app/site"
+
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
-func cloneGitHistory(dname string, repository string, accessToken string) {
-	return git.PlainClone(dname, true, &git.CloneOptions{
-		Auth: &http.TokenAuth{
-			Token: accessToken,
-		},
-	})
+type Publisher interface {
+	PublishSite(siteID string, site *db.Site, output *site.SiteOutput) error
+}
+
+type PublisherService struct {
+	git git_internal.GitWrapper
 }
 
 func commitGitFiles() {
@@ -24,7 +27,7 @@ func removeTempFiles(list []string) {
 	}
 }
 
-func writeFilesToDir(dname string, page *PageOutput) ([]string, error) {
+func (s *PublisherService) writeFilesToDir(dname string, page *site.PageOutput) ([]string, error) {
 	fileList := make([]string, 0)
 	f, err := os.CreateTemp(dname, page.Slug+".html")
 	if err != nil {
@@ -42,7 +45,7 @@ func writeFilesToDir(dname string, page *PageOutput) ([]string, error) {
 
 			defer os.Remove(subPageDname)
 
-			result, err := writeFilesToDir(subPageDname, subPage)
+			result, err := s.writeFilesToDir(subPageDname, subPage)
 			if err != nil {
 				return nil, err
 			}
@@ -55,7 +58,7 @@ func writeFilesToDir(dname string, page *PageOutput) ([]string, error) {
 	return fileList, nil
 }
 
-func publishSite(siteID string, site *Site, output *SiteOutput) error {
+func (s *PublisherService) PublishSite(siteID string, site *site.Site, output *site.SiteOutput) error {
 	dname, err := os.MkdirTemp("", siteID)
 	fileList := make([]string, 0)
 	if err != nil {
@@ -63,10 +66,12 @@ func publishSite(siteID string, site *Site, output *SiteOutput) error {
 	}
 
 	defer os.Remove(dname)
-	cloneGitHistory(dname, site.Repository, site.Credentials.AccessToken)
+	s.git.CloneHistory(dname, &git.CloneOptions{
+		URL: site.Repository,
+	})
 
 	for _, page := range output.Pages {
-		l, err := writeFilesToDir(dname, page)
+		l, err := s.writeFilesToDir(dname, page)
 		if err != nil {
 			return err
 		}
@@ -77,4 +82,10 @@ func publishSite(siteID string, site *Site, output *SiteOutput) error {
 	defer removeTempFiles(fileList)
 
 	return nil
+}
+
+func New(gitInternal git_internal.GitWrapper) *PublisherService {
+	return &PublisherService{
+		git: gitInternal,
+	}
 }

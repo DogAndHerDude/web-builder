@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package site;
+
+service SiteService {
+  rpc CreateSite() returns (Site) {}
+}
+
+message Site {
+  string id = 1;
+  string title = 2;
+  date createdAt = 3;
+  date updatedAt = 4;
+  date lastPublishedAt = 5;
+}
+
+message Page {
+  string id = 1;
+  string title = 2;
+  string slug = 3;
+  []string dependencies = 4;
+  []Node nodes = 5;
+}
+
+message Node {
+	string tag         = 1;
+	string textContent =2;
+	  string dependency =3;
+	 []string classList
+	[]Node children    =4;
+}
+
