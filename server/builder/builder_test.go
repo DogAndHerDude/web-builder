@@ -8,14 +8,14 @@ import (
 )
 
 func TestTreeNodeToHTMLTagOnlyText(t *testing.T) {
-	node := &db.TreeNode{
+	node := &db.HTMLNode{
 		Tag:         "#text",
 		TextContent: "Hello!",
 	}
 	expected := `
   Hello!
   `
-	result, err := treeNodeToHTML(node)
+	result, err := htmlNodeToHTMLString(node)
 	if err != nil {
 		t.Fatalf(`treeToHTMLTag expected not to error, but received %v`, err)
 	}
@@ -28,12 +28,12 @@ func TestTreeNodeToHTMLTagOnlyText(t *testing.T) {
 // TestTreeNodeToHTMLTagWithChild creates a template
 // with tag and child in it
 func TestTreeNodeToHTMLTagWithChild(t *testing.T) {
-	children := make([]*db.TreeNode, 1)
-	children[0] = &db.TreeNode{
+	children := make([]*db.HTMLNode, 1)
+	children[0] = &db.HTMLNode{
 		Tag:         "#text",
 		TextContent: "Hi",
 	}
-	node := &db.TreeNode{
+	node := &db.HTMLNode{
 		Tag:      "DIV",
 		Children: children,
 	}
@@ -42,9 +42,9 @@ func TestTreeNodeToHTMLTagWithChild(t *testing.T) {
     Hi
   </div>
   `
-	result, err := treeNodeToHTML(node)
+	result, err := htmlNodeToHTMLString(node)
 	if err != nil {
-		t.Fatalf(`treeToHTMLTag expected not to error, but received %v`, err)
+		t.Fatalf(`treeToHTMLTag expected not to error, but received: %v`, err)
 	}
 
 	if !strings.Contains(expected, result) {
@@ -57,12 +57,12 @@ func TestTreeNodeToHTMLTagWithClass(t *testing.T) {
 	classes := make([]string, 2)
 	classes[0] = "class1"
 	classes[1] = "class2"
-	children := make([]*db.TreeNode, 1)
-	children[0] = &db.TreeNode{
+	children := make([]*db.HTMLNode, 1)
+	children[0] = &db.HTMLNode{
 		Tag:         "#text",
 		TextContent: "Hi",
 	}
-	node := &db.TreeNode{
+	node := &db.HTMLNode{
 		Tag:       "DIV",
 		Children:  children,
 		ClassList: classes,
@@ -72,7 +72,7 @@ func TestTreeNodeToHTMLTagWithClass(t *testing.T) {
     Hi
   </div>
   `
-	result, err := treeNodeToHTML(node)
+	result, err := htmlNodeToHTMLString(node)
 	if err != nil {
 		t.Fatalf(`treeToHTMLTag expected not to error, but received %v`, err)
 	}
@@ -82,25 +82,25 @@ func TestTreeNodeToHTMLTagWithClass(t *testing.T) {
 	}
 }
 
-func TestBuilPageHTMLToReturnContentInHTML(t *testing.T) {
+func TestBuildPageHTMLToReturnContentInHTML(t *testing.T) {
 	classes := make([]string, 2)
 	classes[0] = "class1"
 	classes[1] = "class2"
-	children := make([]*db.TreeNode, 1)
-	children[0] = &db.TreeNode{
+	children := make([]*db.HTMLNode, 1)
+	children[0] = &db.HTMLNode{
 		Tag:         "#text",
 		TextContent: "Hi",
 	}
-	node := &db.TreeNode{
+	node := &db.HTMLNode{
 		Tag:       "DIV",
 		Children:  children,
 		ClassList: classes,
 	}
-	nodes := make([]*db.TreeNode, 1)
+	nodes := make([]*db.HTMLNode, 1)
 	nodes[0] = node
 	page := &db.Page{
 		Title: "Hello",
-		Nodes: nodes,
+		Body:  nodes,
 	}
 	expected := `
   <!doctype html>
@@ -119,6 +119,36 @@ func TestBuilPageHTMLToReturnContentInHTML(t *testing.T) {
   </html>
   `
 	result, err := buildPageHTML(page)
+	if err != nil {
+		t.Fatalf(`buildPageHTML expected not to error, but received %v`, err)
+	}
+
+	if !strings.Contains(strings.ReplaceAll(strings.ReplaceAll(expected, "\n", ""), " ", ""), strings.ReplaceAll(strings.ReplaceAll(result, "\n", ""), " ", "")) {
+		t.Fatalf(`buildPageHTML expected templates to match but they did not`)
+	}
+}
+
+func TestBuildNodeHTMLTagWithAttributes(t *testing.T) {
+	classes := make([]string, 2)
+	classes[0] = "class1"
+	classes[1] = "class2"
+	children := make([]*db.HTMLNode, 1)
+	children[0] = &db.HTMLNode{
+		Tag:         "#text",
+		TextContent: "Hi",
+	}
+	node := &db.HTMLNode{
+		Tag:        "DIV",
+		Children:   children,
+		ClassList:  classes,
+		Attributes: map[string]string{"x-trigger": "click"},
+	}
+	expected := `
+  <div class="class1 class2" x-trigger="click">
+    Hi
+  </div>
+  `
+	result, err := htmlNodeToHTMLString(node)
 	if err != nil {
 		t.Fatalf(`buildPageHTML expected not to error, but received %v`, err)
 	}

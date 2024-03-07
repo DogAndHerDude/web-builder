@@ -132,7 +132,10 @@ type User struct {
 type Site struct {
 	ID              string
 	Title           string
+	Header          []*HTMLNode
 	Pages           []*Page
+	Footer          []*HTMLNode
+	SharedNodes     []*HTMLNode
 	IsPublished     bool `db:"is_published"`
 	Repository      string
 	UserID          string    `db:"user_id"`
@@ -141,12 +144,21 @@ type Site struct {
 	LastPublishedAt time.Time `db:"last_published_at"`
 }
 
+type PageType string
+
+const (
+	Static    PageType = "STATIC"
+	Portfolio PageType = "PORTFOLIO"
+	Blog      PageType = "BLOG"
+)
+
 type Page struct {
 	ID           string
+	Type         PageType
 	Title        string
 	Slug         string
 	Dependencies []string
-	Nodes        []*TreeNode // Should be binary
+	Body         []*HTMLNode // Should be binary
 	Pages        []*Page
 	PageID       string    `db:"page_id"`
 	SiteID       string    `db:"site_id"`
@@ -154,10 +166,20 @@ type Page struct {
 	UpdatedAt    time.Time `db:"updated_at"`
 }
 
-type TreeNode struct {
-	Tag         HTMLElement
-	TextContent string
-	Dependency  string
-	ClassList   []string
-	Children    []*TreeNode
+type NodeType string
+
+const (
+	Container NodeType = "CONTAINER"
+	Component NodeType = "COMPONENT"
+)
+
+type HTMLNode struct {
+	Tag              HTMLElement
+	TextContent      string
+	Dependency       string
+	Attributes       map[string]string // key=value values
+	ComponentID      string
+	ComponentVersion string
+	ClassList        []string
+	Children         []*HTMLNode
 }

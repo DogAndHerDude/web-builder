@@ -47,6 +47,7 @@ model Site {
 
 model Page {
   id           String    @id
+  type         String    @default("STATIC")
   title        String
   slug         String
   dependencies Bytes

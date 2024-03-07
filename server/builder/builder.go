@@ -9,9 +9,10 @@ import (
 )
 
 type NodeTemplate struct {
-	Tag      string
-	Class    string
-	Children []string
+	Tag        string
+	Class      string
+	Children   []string
+	Attributes map[string]string
 }
 
 type PageTemplate struct {
@@ -57,7 +58,7 @@ const (
 const (
 	nodeTemplateName = "NodeTemplate"
 	nodeTemplate     = `
-  {{ tagOpen .Tag .Class }}
+  {{ tagOpen .Tag .Class .Attributes }}
     {{ range .Children }}{{ unescaped . }}{{ end }}
   {{ tagClose .Tag }}`
 )
@@ -66,11 +67,15 @@ var funcMap = template.FuncMap{
 	"unescaped": func(value string) template.HTML {
 		return template.HTML(value)
 	},
-	"tagOpen": func(name string, class string) template.HTML {
+	"tagOpen": func(name string, class string, attributes map[string]string) template.HTML {
 		tag := "<" + template.HTMLEscapeString(name)
 
 		if class != "" {
 			tag = tag + ` class="` + template.HTMLEscapeString(class) + `"`
+		}
+
+		for k, v := range attributes {
+			tag = tag + " " + k + `="` + template.HTMLEscapeString(v) + `"`
 		}
 
 		tag = tag + ">"
@@ -84,8 +89,8 @@ var funcMap = template.FuncMap{
 	},
 }
 
-func treeNodeToHTML(node *db.TreeNode) (string, error) {
-	if node.Tag == "#text" {
+func htmlNodeToHTMLString(node *db.HTMLNode) (string, error) {
+	if node.Tag == db.Text {
 		return node.TextContent, nil
 	}
 
@@ -103,7 +108,7 @@ func treeNodeToHTML(node *db.TreeNode) (string, error) {
 
 	if node.Children != nil && len(node.Children) > 0 {
 		for _, child := range node.Children {
-			childStr, childErr := treeNodeToHTML(child)
+			childStr, childErr := htmlNodeToHTMLString(child)
 
 			if childErr != nil {
 				return "", childErr
@@ -114,9 +119,10 @@ func treeNodeToHTML(node *db.TreeNode) (string, error) {
 	}
 
 	data := NodeTemplate{
-		Tag:      strings.ToLower(string(node.Tag)),
-		Class:    class,
-		Children: children,
+		Tag:        strings.ToLower(string(node.Tag)),
+		Class:      class,
+		Children:   children,
+		Attributes: node.Attributes,
 	}
 	var parsedTempalte bytes.Buffer
 	parseErr := tpl.Execute(&parsedTempalte, data)
@@ -135,8 +141,8 @@ func buildPageHTML(page *db.Page) (string, error) {
 
 	children := make([]string, 0)
 
-	for _, node := range page.Nodes {
-		childStr, err := treeNodeToHTML(node)
+	for _, node := range page.Body {
+		childStr, err := htmlNodeToHTMLString(node)
 		if err != nil {
 			return "", err
 		}
@@ -163,7 +169,7 @@ func buildPageTree(page *db.Page) (*PageBuildResult, error) {
 		Slug: page.Slug,
 	}
 
-	if len(page.Nodes) > 0 {
+	if len(page.Body) > 0 {
 		pageHTML, err := buildPageHTML(page)
 		if err != nil {
 			return nil, err
