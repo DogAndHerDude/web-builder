@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/rand"
 	"errors"
 	"os"
@@ -54,4 +55,17 @@ func HashString(value string, salt []byte) ([]byte, error) {
 	)
 
 	return hash, nil
+}
+
+func CompareHash(h string, s string, v string) error {
+	hashSalt, err := HashString(v, []byte(s))
+	if err != nil {
+		return err
+	}
+
+	if !bytes.Equal(hashSalt, []byte(h)) {
+		return errors.New("hash does not match")
+	}
+
+	return nil
 }

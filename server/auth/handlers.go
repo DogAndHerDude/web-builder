@@ -9,15 +9,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Needs dat avalidation
+// Needs data avalidation
+// Needs specific password complexity & email validity logic
 type SignupPayload struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8,max=40"`
 }
 
-type SignupResponse struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
+type LoginPayload struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8,max=40"`
 }
 
 type AuthHandlers struct {
@@ -26,10 +27,13 @@ type AuthHandlers struct {
 }
 
 func (h *AuthHandlers) Signup(c echo.Context) error {
-	var payload SignupPayload
-	err := c.Bind(&payload)
-	if err != nil {
+	payload := new(SignupPayload)
+
+	if err := c.Bind(payload); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something went wrong")
+	}
+	if err := c.Validate(payload); err != nil {
+		return nil
 	}
 
 	salt, err := utils.RandomSecret(10)
@@ -54,18 +58,30 @@ func (h *AuthHandlers) Signup(c echo.Context) error {
 	}
 
 	c.SetCookie(&http.Cookie{
-		Name:     "Authorization",
+		Name:     "jwt",
 		Value:    token,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 	})
-
-	// c.JSON(http.StatusCreated)
+	c.String(http.StatusAccepted, "Accepted")
 
 	return nil
 }
 
 func (h *AuthHandlers) Authenticate(c echo.Context) error {
+	var payload LoginPayload
+	err := c.Bind(&payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotAcceptable, "Invalid payload")
+	}
+
+	user, err := h.userService.GetUserByEmail(payload.Email)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+
+	c.JSON(http.StatusOK, user)
+
 	return nil
 }
 

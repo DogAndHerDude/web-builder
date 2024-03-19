@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"html/template"
 	"strings"
+	"sync"
 
 	"app/db"
 )
@@ -210,6 +211,76 @@ func (s *SiteBuilderService) BuildSite(site *db.Site) (*BuildResult, error) {
 
 	siteOutput := &BuildResult{
 		Pages: output,
+		// TODO: build sitemap
+	}
+
+	return siteOutput, nil
+}
+
+func buildPageTreeConcurrent(page *db.Page, output chan<- *PageBuildResult, buildErr chan<- error, wg *sync.WaitGroup) {
+	defer close(output)
+	defer wg.Done()
+	pageOutput := &PageBuildResult{
+		Slug: page.Slug,
+	}
+
+	if len(page.Body) > 0 {
+		pageHTML, err := buildPageHTML(page)
+		if err != nil {
+			buildErr <- err
+			return
+		}
+
+		pageOutput.Content = pageHTML
+	}
+
+	if len(page.Pages) > 0 {
+		for _, subPage := range page.Pages {
+			subPageHTML, err := buildPageHTML(subPage)
+			if err != nil {
+				buildErr <- err
+				return
+			}
+
+			subPageOutput := &PageBuildResult{
+				Slug:    subPage.Slug,
+				Content: subPageHTML,
+			}
+			pageOutput.Pages = append(pageOutput.Pages, subPageOutput)
+		}
+	}
+
+	output <- pageOutput
+}
+
+// TODO: use err group for early exit and cancellation of other goroutines
+func buildSiteConcurrent(site *db.Site) (*BuildResult, error) {
+	var pages []*PageBuildResult
+	var err error
+	var wg *sync.WaitGroup
+	output := make(chan *PageBuildResult, len(site.Pages))
+	buildErr := make(chan error)
+
+	for _, page := range site.Pages {
+		wg.Add(1)
+		go buildPageTreeConcurrent(page, output, buildErr, wg)
+	}
+
+	select {
+	case page := <-output:
+		pages = append(pages, page)
+	case errResult := <-buildErr:
+		err = errResult
+	}
+
+	wg.Wait()
+
+	if err != nil {
+		return nil, err
+	}
+
+	siteOutput := &BuildResult{
+		Pages: pages,
 		// TODO: build sitemap
 	}
 

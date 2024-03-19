@@ -8,11 +8,13 @@ import (
 	"app/db"
 	"app/env"
 	git_internal "app/git"
+	custom_middleware "app/middleware"
 	"app/publisher"
 	"app/site"
 	"app/user"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 )
 
@@ -28,8 +30,10 @@ func main() {
 	siteService := site.New(DB, builderService, publisherService)
 
 	server := echo.New()
+	server.Validator = custom_middleware.NewValidator()
 	apiGroup := server.Group("/api")
 
+	server.Use(middleware.Logger())
 	server.Logger.SetLevel(log.DEBUG)
 	auth.RegisterHandlers(apiGroup, userService, authService)
 	user.RegisterHandlers(userService, apiGroup)

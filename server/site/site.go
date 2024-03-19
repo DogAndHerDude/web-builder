@@ -11,10 +11,48 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type UpdateSiteDetailsPayload struct {
+	ID          string `json:"id" validate:"required,uuid"`
+	Title       string `json:"title" validate:"omitnil,min=2,max=40"`
+	Description string `json:"description" validate:"omitnil,min=10,max=40"`
+}
+
+type UpdatePageDetailsPayload struct {
+	Title string `json:"title" validate:"omitnil,min=2,max=40"`
+}
+
+// TODO: Font families should be saved somehwere in utils or something
+type UpdateSiteTemplatePayload struct {
+	Pallete    []string `json:"pallete" validate:"omitnil,len=3,dive,hexcolor"` // Need to validate is as a tuple of #HEX
+	FontFamily string   `json:"FontFmaily" validate:"omitnil"`                  // Needs to validate based on a given set of a vailable font families
+}
+
+type HTMLNodePayload struct {
+	Tag              string             `json:"tag" validate:"required,html"`
+	TextContent      string             `json:"textContent" validate:"omitnil,omitempty,html_encoded"`
+	Dependency       string             `json:"dependency" validate:"omitnil,omitempty"` // Need to validate from all possible references to valid urls to dependencies
+	Attributes       map[string]string  `json:"attributes" validate:"omitnil,omitempty"`
+	ComponentID      string             `json:"componentId" validate:"omitnil,omitempty"`
+	ComponentVersion string             `json:"componentVersion" validate:"omitnil,omitempty"`
+	ClassList        []string           `json:"classList" validate:"required,omitnil,dive,html_encoded"`
+	Children         []*HTMLNodePayload `json:"children" validate:"required"`
+}
+
+type UpdatePageNodesPayload struct {
+	SiteID string             `json:"siteId" validate:"required,uuid"`
+	PageID string             `json:"pageId" validate:"required,uuid"`
+	Nodes  []*HTMLNodePayload `json:"nodes" validate:"required"` // Need to nest validate
+}
+
 type ISiteService interface {
 	GetSiteByID(ID string) (*db.Site, error)
 	CreateSite(userID string) (*db.Site, error)
-	PublishSite(ID string)
+	UpdateSite(payload UpdateSiteDetailsPayload) ([]string, error)
+	// Probably move it into its own module? What's the difference between SiteTemplate and Template? Should they be unrelated?
+	// UpdateSiteTemplate(siteID string) ([]string, error)
+	AddPage(siteID string) error
+	UpdatePage(siteID string, pageID string)
+	UpdatePageNodes(payload UpdatePageNodesPayload) error
 }
 
 type SiteService struct {
@@ -22,6 +60,8 @@ type SiteService struct {
 	builder   builder.SiteBuilder
 	publisher publisher.Publisher
 }
+
+// ======= SITE START =======
 
 func (s *SiteService) GetSiteByID(ID string) (*db.Site, error) {
 	site := db.Site{}
@@ -41,31 +81,30 @@ func (s *SiteService) GetSiteByID(ID string) (*db.Site, error) {
 func (s *SiteService) CreateSite(userID string) (*db.Site, error) {
 	siteID := uuid.NewString()
 	_, err := s.DB.Exec(`
-  INSERT INTO site (
+  INSERT INTO "public"."Site" (
     id = $1,
     title = $2,
     user_id = $3,
     created_at = $4,
   ) VALUES ($1, $2, $3, $4)
-    `, siteID, "", userID, time.Now())
+    `, siteID, "Untitled Site", userID, time.Now())
 	if err != nil {
 		return nil, err
 	}
 
 	_, pageErr := s.DB.Exec(`
-  INSERT INTO page (
-    id,
-    title,
-    nodes,
-    dependancies,
-    created_at,
-  ) VALUES ($1, $2, $3, $4)
+  INSERT INTO "public"."Page" (
+    id = $1,
+    title = $2,
+    nodes = $3,
+    site_id = $4
+    created_at = $5,
+  ) VALUES ($1, $2, $3, $4, $5)
     `,
 		uuid.NewString(),
-		"Landing page",
+		"So",
+		make([]byte, 0),
 		siteID,
-		make([]byte, 0),
-		make([]byte, 0),
 		time.Now(),
 	)
 	if pageErr != nil {
@@ -73,7 +112,13 @@ func (s *SiteService) CreateSite(userID string) (*db.Site, error) {
 	}
 
 	site := &db.Site{}
-	siteErr := s.DB.Get(site, "SELECT * FROM site OUTER LEFT JOIN page ON site.id = page.site_id")
+	siteErr := s.DB.Get(site, `
+    SELECT *
+    FROM "public"."Site"
+    OUTER LEFT JOIN page ON "Site".id = "Page".site_id
+    WHERE id="$1"`,
+		siteID,
+	)
 	if siteErr != nil {
 		return nil, siteErr
 	}
@@ -81,8 +126,20 @@ func (s *SiteService) CreateSite(userID string) (*db.Site, error) {
 	return site, nil
 }
 
-func (s *SiteService) PublishSite(ID string) {
+func (s *SiteService) UpdateSite(payload UpdateSiteDetailsPayload) ([]string, error) {
+	// Itterate through fields and create an update query
+
+	return []string{}, nil
 }
+
+// ======= SITE END =======
+// ======= PAGE START =======
+
+func (s *SiteService) UpdatePageNodes(payload UpdatePageNodesPayload) error {
+	return nil
+}
+
+// ======= PAGE END =======
 
 func New(db *sqlx.DB, builder builder.SiteBuilder, publisher publisher.Publisher) *SiteService {
 	return &SiteService{

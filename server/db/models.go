@@ -118,7 +118,22 @@ const (
 	Video      HTMLElement = "VIDEO"
 	Wbr        HTMLElement = "WBR"
 	Text       HTMLElement = "#text"
+
+	// Internal template elements
 )
+
+type TemplateElement string
+
+const (
+	Outlet TemplateElement = "OUTLET"
+)
+
+type TemplateHTMLElementUnion interface {
+	isElement()
+}
+
+func (HTMLElement) isElement()     {}
+func (TemplateElement) isElement() {}
 
 type User struct {
 	ID        string
@@ -136,6 +151,7 @@ type Site struct {
 	Pages           []*Page
 	Footer          []*HTMLNode
 	SharedNodes     []*HTMLNode
+	Template        *SiteTemplate
 	IsPublished     bool `db:"is_published"`
 	Repository      string
 	UserID          string    `db:"user_id"`
@@ -182,4 +198,23 @@ type HTMLNode struct {
 	ComponentVersion string
 	ClassList        []string
 	Children         []*HTMLNode
+}
+
+type TemplateNode struct {
+	HTMLNode
+	Tag TemplateHTMLElementUnion
+}
+
+type CustomTemplate struct {
+	ID        string
+	Nodes     []*TemplateNode
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type SiteTemplate struct {
+	CustomTemplate
+	Pallete       []string
+	FontFamily    string
+	FontFamilyURL string
 }

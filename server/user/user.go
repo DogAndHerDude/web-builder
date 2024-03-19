@@ -12,6 +12,7 @@ import (
 
 type IUserService interface {
 	GetUserByID(ID string) (db.User, error)
+	GetUserByEmail(email string) (db.User, error)
 	CreateUser(email, salt string, hashedPassword string) (db.User, error)
 }
 
@@ -24,9 +25,24 @@ func (s *UserService) GetUserByID(ID string) (db.User, error) {
 	err := s.db.Get(&user, `
     FROM user
     SELECT id, email
-    WHERE id=$1
+    WHERE id="$1"
     VALUES=($1)
   `, ID)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
+func (s *UserService) GetUserByEmail(email string) (db.User, error) {
+	user := db.User{}
+	err := s.db.Get(&user, `
+    FROM user
+    SELECT id, email
+    WHERE 'email'="$1"
+    VALUES=($1)
+  `, email)
 	if err != nil {
 		return user, err
 	}
