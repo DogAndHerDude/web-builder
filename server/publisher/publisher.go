@@ -21,12 +21,6 @@ type PublisherService struct {
 func commitGitFiles() {
 }
 
-func removeTempFiles(list []string) {
-	for _, file := range list {
-		os.Remove(file)
-	}
-}
-
 func (s *PublisherService) writeFilesToDir(dname string, page *builder.PageBuildResult) ([]string, error) {
 	fileList := make([]string, 0)
 	f, err := os.CreateTemp(dname, page.Slug+".html")
@@ -65,7 +59,7 @@ func (s *PublisherService) PublishSite(siteID string, site *db.Site, output *bui
 		return err
 	}
 
-	defer os.Remove(dname)
+	defer os.RemoveAll(dname)
 	s.git.CloneHistory(dname, &git.CloneOptions{
 		URL: site.Repository,
 	})
@@ -78,8 +72,6 @@ func (s *PublisherService) PublishSite(siteID string, site *db.Site, output *bui
 
 		fileList = append(fileList, l...)
 	}
-
-	defer removeTempFiles(fileList)
 
 	return nil
 }

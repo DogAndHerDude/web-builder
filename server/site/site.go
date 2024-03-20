@@ -133,6 +133,7 @@ func (s *SiteService) UpdateSite(payload UpdateSiteDetailsPayload) ([]string, er
 }
 
 // ======= SITE END =======
+
 // ======= PAGE START =======
 
 func (s *SiteService) UpdatePageNodes(payload UpdatePageNodesPayload) error {

@@ -34,6 +34,7 @@ type BuildResult struct {
 
 type SiteBuilder interface {
 	BuildSite(site *db.Site) (*BuildResult, error)
+	BuildSiteConcurrent(site *db.Site) (*BuildResult, error)
 }
 
 type SiteBuilderService struct{}
@@ -253,8 +254,7 @@ func buildPageTreeConcurrent(page *db.Page, output chan<- *PageBuildResult, buil
 	output <- pageOutput
 }
 
-// TODO: use err group for early exit and cancellation of other goroutines
-func buildSiteConcurrent(site *db.Site) (*BuildResult, error) {
+func (b *SiteBuilderService) BuildSiteConcurrent(site *db.Site) (*BuildResult, error) {
 	var pages []*PageBuildResult
 	var err error
 	var wg *sync.WaitGroup
@@ -270,6 +270,10 @@ func buildSiteConcurrent(site *db.Site) (*BuildResult, error) {
 	case page := <-output:
 		pages = append(pages, page)
 	case errResult := <-buildErr:
+		// Errors get overriden here
+		// Should use a stack perhaps?
+		// Exit early maybe if one error occurs?
+		// can't build the rest of the site though
 		err = errResult
 	}
 
