@@ -17,6 +17,10 @@ type UpdateSiteDetailsPayload struct {
 	Description string `json:"description" validate:"omitnil,min=10,max=40"`
 }
 
+type CreatePagePayload struct {
+	SiteID string `json:"siteId" validate:"required,uuid"`
+}
+
 type UpdatePageDetailsPayload struct {
 	Title string `json:"title" validate:"omitnil,min=2,max=40"`
 }

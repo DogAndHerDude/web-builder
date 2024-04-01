@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	custom_middleware "app/middleware"
+	"app/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -13,6 +14,28 @@ type SiteHandlers struct {
 }
 
 func (h *SiteHandlers) CreateSite(c echo.Context) error {
+	claims, ok := c.Get("user").(utils.Claims)
+	if !ok {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	site, err := h.siteService.CreateSite(claims.ID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Unauthorized")
+	}
+
+	c.JSON(http.StatusCreated, struct {
+		data struct {
+			ID string `json:"id"`
+		}
+	}{
+		data: struct {
+			ID string `json:"id"`
+		}{
+			ID: site.ID,
+		},
+	})
+
 	return nil
 }
 
