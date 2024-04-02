@@ -54,9 +54,8 @@ type ISiteService interface {
 	UpdateSite(payload UpdateSiteDetailsPayload) ([]string, error)
 	// Probably move it into its own module? What's the difference between SiteTemplate and Template? Should they be unrelated?
 	// UpdateSiteTemplate(siteID string) ([]string, error)
-	AddPage(siteID string) error
-	UpdatePage(siteID string, pageID string)
-	UpdatePageNodes(payload UpdatePageNodesPayload) error
+	CreatePage(siteID string) error
+	UpdatePage(siteID string, pageID string) error
 }
 
 type SiteService struct {
@@ -136,15 +135,13 @@ func (s *SiteService) UpdateSite(payload UpdateSiteDetailsPayload) ([]string, er
 	return []string{}, nil
 }
 
-// ======= SITE END =======
-
-// ======= PAGE START =======
-
-func (s *SiteService) UpdatePageNodes(payload UpdatePageNodesPayload) error {
+func (s *SiteService) CreatePage(siteID string) error {
 	return nil
 }
 
-// ======= PAGE END =======
+func (s *SiteService) UpdatePage(siteID string, pageID string) error {
+	return nil
+}
 
 func New(db *sqlx.DB, builder builder.SiteBuilder, publisher publisher.Publisher) *SiteService {
 	return &SiteService{

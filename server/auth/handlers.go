@@ -50,6 +50,7 @@ func (h *AuthHandlers) Signup(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusExpectationFailed)
 	}
+
 	token, err := h.authService.GenerateJWT(ClaimValues{
 		ID: user.ID,
 	})
