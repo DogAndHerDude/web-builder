@@ -5,16 +5,18 @@ import (
 	"os"
 	"strings"
 
-	"github.com/DogAndHerDude/web-builder/auth"
-	"github.com/DogAndHerDude/web-builder/builder"
-	"github.com/DogAndHerDude/web-builder/db"
 	"github.com/DogAndHerDude/web-builder/env"
 	git_internal "github.com/DogAndHerDude/web-builder/git"
+	"github.com/DogAndHerDude/web-builder/internal/app/auth/auth_handlers"
+	"github.com/DogAndHerDude/web-builder/internal/app/auth/auth_service"
+	"github.com/DogAndHerDude/web-builder/internal/app/db"
 	"github.com/DogAndHerDude/web-builder/internal/app/site/site_handlers"
 	"github.com/DogAndHerDude/web-builder/internal/app/site/site_service"
+	"github.com/DogAndHerDude/web-builder/internal/app/user/user_handlers"
+	"github.com/DogAndHerDude/web-builder/internal/app/user/user_service"
+	"github.com/DogAndHerDude/web-builder/internal/pkg/builder"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
 	"github.com/DogAndHerDude/web-builder/publisher"
-	"github.com/DogAndHerDude/web-builder/user"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -43,8 +45,8 @@ func main() {
 	env.Init()
 
 	DB := db.New()
-	authService := auth.New()
-	userService := user.New(DB)
+	authService := auth_service.New()
+	userService := user_service.New(DB)
 	gitService := git_internal.New()
 	builderService := builder.New()
 	publisherService := publisher.New(gitService)
@@ -58,8 +60,8 @@ func main() {
 	server.Use(middleware.CSRF())
 	server.Use(middleware.Logger())
 	server.Logger.SetLevel(log.DEBUG)
-	auth.RegisterHandlers(apiGroup, userService, authService)
-	user.RegisterHandlers(userService, apiGroup)
+	auth_handlers.RegisterHandlers(apiGroup, userService, authService)
+	user_handlers.RegisterHandlers(userService, apiGroup)
 	site_handlers.RegisterHandlers(apiGroup, siteService)
 
 	err := server.Start(":" + os.Getenv("PORT"))

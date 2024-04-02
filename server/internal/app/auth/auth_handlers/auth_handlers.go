@@ -1,8 +1,9 @@
-package auth
+package auth_handlers
 
 import (
 	"net/http"
 
+	"github.com/DogAndHerDude/web-builder/internal/app/auth/auth_service"
 	hash_utils "github.com/DogAndHerDude/web-builder/internal/pkg/hash_utils"
 	"github.com/DogAndHerDude/web-builder/user"
 
@@ -23,7 +24,7 @@ type LoginPayload struct {
 
 type AuthHandlers struct {
 	userService user.IUserService
-	authService IAuthService
+	authService auth_service.IAuthService
 }
 
 func (h *AuthHandlers) Signup(c echo.Context) error {
@@ -51,7 +52,7 @@ func (h *AuthHandlers) Signup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusExpectationFailed)
 	}
 
-	token, err := h.authService.GenerateJWT(ClaimValues{
+	token, err := h.authService.GenerateJWT(auth_service.ClaimValues{
 		ID: user.ID,
 	})
 	if err != nil {
@@ -86,7 +87,7 @@ func (h *AuthHandlers) Authenticate(c echo.Context) error {
 	return nil
 }
 
-func RegisterHandlers(e *echo.Group, u user.IUserService, a IAuthService) {
+func RegisterHandlers(e *echo.Group, u user.IUserService, a auth_service.IAuthService) {
 	h := &AuthHandlers{
 		userService: u,
 		authService: a,
