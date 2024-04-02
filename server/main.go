@@ -1,7 +1,9 @@
 package main
 
 import (
+	"net/http"
 	"os"
+	"strings"
 
 	"app/auth"
 	"app/builder"
@@ -18,6 +20,24 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+func setupCORS(s *echo.Echo) {
+	origin := os.Getenv("ORIGIN")
+	allowed := strings.Split(origin, ",")
+
+	s.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		Skipper:      middleware.DefaultSkipper,
+		AllowOrigins: allowed,
+		AllowMethods: []string{
+			http.MethodGet,
+			http.MethodHead,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodPost,
+			http.MethodDelete,
+		},
+	}))
+}
+
 func main() {
 	env.Init()
 
@@ -33,6 +53,7 @@ func main() {
 	server.Validator = custom_middleware.NewValidator()
 	apiGroup := server.Group("/api")
 
+	setupCORS(server)
 	server.Use(middleware.Logger())
 	server.Logger.SetLevel(log.DEBUG)
 	auth.RegisterHandlers(apiGroup, userService, authService)
