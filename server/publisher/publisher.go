@@ -3,9 +3,10 @@ package publisher
 import (
 	"os"
 
-	"app/builder"
-	"app/db"
-	git_internal "app/git"
+	git_internal "github.com/DogAndHerDude/web-builder/git"
+
+	"github.com/DogAndHerDude/web-builder/builder"
+	"github.com/DogAndHerDude/web-builder/db"
 
 	"github.com/go-git/go-git/v5"
 )

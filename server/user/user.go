@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"app/db"
+	"github.com/DogAndHerDude/web-builder/db"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"

@@ -3,8 +3,8 @@ package auth
 import (
 	"net/http"
 
-	"app/user"
-	"app/utils"
+	"github.com/DogAndHerDude/web-builder/user"
+	"github.com/DogAndHerDude/web-builder/utils"
 
 	"github.com/labstack/echo/v4"
 )

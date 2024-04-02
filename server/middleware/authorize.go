@@ -3,7 +3,7 @@ package custom_middleware
 import (
 	"net/http"
 
-	"app/utils"
+	"github.com/DogAndHerDude/web-builder/utils"
 
 	"github.com/labstack/echo/v4"
 )

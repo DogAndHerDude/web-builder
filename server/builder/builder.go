@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"app/db"
+	"github.com/DogAndHerDude/web-builder/db"
 )
 
 type NodeTemplate struct {

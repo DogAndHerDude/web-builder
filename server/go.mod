@@ -1,4 +1,4 @@
-module app
+module github.com/DogAndHerDude/web-builder
 
 go 1.21
 

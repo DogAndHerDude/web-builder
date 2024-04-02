@@ -3,8 +3,8 @@ package user
 import (
 	"net/http"
 
-	custom_middleware "app/middleware"
-	"app/utils"
+	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
+	"github.com/DogAndHerDude/web-builder/utils"
 
 	"github.com/labstack/echo/v4"
 )

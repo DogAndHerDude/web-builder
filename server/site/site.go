@@ -3,9 +3,9 @@ package site
 import (
 	"time"
 
-	"app/builder"
-	"app/db"
-	"app/publisher"
+	"github.com/DogAndHerDude/web-builder/builder"
+	"github.com/DogAndHerDude/web-builder/db"
+	"github.com/DogAndHerDude/web-builder/publisher"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
