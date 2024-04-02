@@ -3,8 +3,8 @@ package auth
 import (
 	"net/http"
 
+	hash_utils "github.com/DogAndHerDude/web-builder/internal/pkg/hash_utils"
 	"github.com/DogAndHerDude/web-builder/user"
-	"github.com/DogAndHerDude/web-builder/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -36,12 +36,12 @@ func (h *AuthHandlers) Signup(c echo.Context) error {
 		return nil
 	}
 
-	salt, err := utils.RandomSecret(10)
+	salt, err := hash_utils.RandomSecret(10)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something went wrong")
 	}
 
-	hashedPassword, err := utils.HashString(payload.Password, salt)
+	hashedPassword, err := hash_utils.HashString(payload.Password, salt)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something went wrong")
 	}
