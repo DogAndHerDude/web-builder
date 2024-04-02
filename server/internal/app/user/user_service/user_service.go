@@ -1,11 +1,10 @@
-package user
+package user_service
 
 import (
 	"errors"
 	"time"
 
-	"github.com/DogAndHerDude/web-builder/db"
-
+	"github.com/DogAndHerDude/web-builder/internal/app/db"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )

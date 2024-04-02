@@ -1,8 +1,9 @@
-package user
+package user_handlers
 
 import (
 	"net/http"
 
+	"github.com/DogAndHerDude/web-builder/internal/app/user/user_service"
 	"github.com/DogAndHerDude/web-builder/internal/pkg/jwt_utils"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type UserHandlers struct {
-	userService IUserService
+	userService user_service.IUserService
 }
 
 type GetMeResult struct {
@@ -41,7 +42,7 @@ func (h *UserHandlers) GetMeHandler(c echo.Context) error {
 	return nil
 }
 
-func RegisterHandlers(s IUserService, e *echo.Group) {
+func RegisterHandlers(s user_service.IUserService, e *echo.Group) {
 	group := e.Group("/user")
 	handlers := UserHandlers{
 		userService: s,
