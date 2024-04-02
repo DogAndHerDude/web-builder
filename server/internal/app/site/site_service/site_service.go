@@ -1,4 +1,4 @@
-package site
+package site_service
 
 import (
 	"time"
