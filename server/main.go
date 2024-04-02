@@ -54,6 +54,7 @@ func main() {
 	apiGroup := server.Group("/api")
 
 	setupCORS(server)
+	server.Use(middleware.CSRF())
 	server.Use(middleware.Logger())
 	server.Logger.SetLevel(log.DEBUG)
 	auth.RegisterHandlers(apiGroup, userService, authService)
