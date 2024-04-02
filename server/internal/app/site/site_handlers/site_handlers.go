@@ -1,8 +1,9 @@
-package site
+package site_handlers
 
 import (
 	"net/http"
 
+	"github.com/DogAndHerDude/web-builder/internal/app/site/site_service"
 	"github.com/DogAndHerDude/web-builder/internal/pkg/jwt_utils"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type SiteHandlers struct {
-	siteService ISiteService
+	siteService site_service.ISiteService
 }
 
 func (h *SiteHandlers) CreateSite(c echo.Context) error {
@@ -40,7 +41,7 @@ func (h *SiteHandlers) CreateSite(c echo.Context) error {
 }
 
 func (h *SiteHandlers) UpdateSite(c echo.Context) error {
-	payload := &UpdateSiteDetailsPayload{}
+	payload := &site_service.UpdateSiteDetailsPayload{}
 	if err := c.Bind(payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -62,7 +63,7 @@ func (h *SiteHandlers) UpdatePage(c echo.Context) error {
 }
 
 func (h *SiteHandlers) UpdatePageNodes(c echo.Context) error {
-	payload := &UpdatePageNodesPayload{}
+	payload := &site_service.UpdatePageNodesPayload{}
 	if err := c.Bind(payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -73,7 +74,7 @@ func (h *SiteHandlers) UpdatePageNodes(c echo.Context) error {
 	return nil
 }
 
-func RegisterHandlers(e *echo.Group, s ISiteService) {
+func RegisterHandlers(e *echo.Group, s site_service.ISiteService) {
 	subGroup := e.Group("/site")
 	h := &SiteHandlers{
 		siteService: s,

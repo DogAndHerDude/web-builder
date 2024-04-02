@@ -10,7 +10,8 @@ import (
 	"github.com/DogAndHerDude/web-builder/db"
 	"github.com/DogAndHerDude/web-builder/env"
 	git_internal "github.com/DogAndHerDude/web-builder/git"
-	"github.com/DogAndHerDude/web-builder/internal/app/site"
+	"github.com/DogAndHerDude/web-builder/internal/app/site/site_handlers"
+	"github.com/DogAndHerDude/web-builder/internal/app/site/site_service"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
 	"github.com/DogAndHerDude/web-builder/publisher"
 	"github.com/DogAndHerDude/web-builder/user"
@@ -47,7 +48,7 @@ func main() {
 	gitService := git_internal.New()
 	builderService := builder.New()
 	publisherService := publisher.New(gitService)
-	siteService := site.New(DB, builderService, publisherService)
+	siteService := site_service.New(DB, builderService, publisherService)
 
 	server := echo.New()
 	server.Validator = custom_middleware.NewValidator()
@@ -59,7 +60,7 @@ func main() {
 	server.Logger.SetLevel(log.DEBUG)
 	auth.RegisterHandlers(apiGroup, userService, authService)
 	user.RegisterHandlers(userService, apiGroup)
-	site.RegisterHandlers(apiGroup, siteService)
+	site_handlers.RegisterHandlers(apiGroup, siteService)
 
 	err := server.Start(":" + os.Getenv("PORT"))
 	if err != nil {
