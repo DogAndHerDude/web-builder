@@ -3,8 +3,7 @@ package custom_middleware
 import (
 	"net/http"
 
-	"github.com/DogAndHerDude/web-builder/utils"
-
+	"github.com/DogAndHerDude/web-builder/internal/pkg/jwt_utils"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,7 +14,7 @@ func NewAuthorizeMiddleware() echo.MiddlewareFunc {
 				c.String(http.StatusUnauthorized, "Unauthorized")
 			} else {
 				token := cookie.String()
-				if claims, err := utils.VerifyJWT(token); err != nil {
+				if claims, err := jwt_utils.VerifyJWT(token); err != nil {
 					c.String(http.StatusUnauthorized, "Unauthorized")
 				} else {
 					c.Set("user", claims)
