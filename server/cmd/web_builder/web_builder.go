@@ -10,9 +10,9 @@ import (
 	"github.com/DogAndHerDude/web-builder/db"
 	"github.com/DogAndHerDude/web-builder/env"
 	git_internal "github.com/DogAndHerDude/web-builder/git"
+	"github.com/DogAndHerDude/web-builder/internal/app/site"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
 	"github.com/DogAndHerDude/web-builder/publisher"
-	"github.com/DogAndHerDude/web-builder/site"
 	"github.com/DogAndHerDude/web-builder/user"
 
 	"github.com/labstack/echo/v4"
