@@ -3,8 +3,8 @@ package user
 import (
 	"net/http"
 
+	"github.com/DogAndHerDude/web-builder/internal/pkg/jwt_utils"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
-	"github.com/DogAndHerDude/web-builder/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,7 +19,7 @@ type GetMeResult struct {
 }
 
 func (h *UserHandlers) GetMeHandler(c echo.Context) error {
-	claims, ok := c.Get("user").(utils.Claims)
+	claims, ok := c.Get("user").(jwt_utils.Claims)
 	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Something went wrong")
 	}
