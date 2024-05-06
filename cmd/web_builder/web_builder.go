@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/DogAndHerDude/web-builder/env"
 	git_internal "github.com/DogAndHerDude/web-builder/git"
 	"github.com/DogAndHerDude/web-builder/internal/app/auth/auth_handlers"
 	"github.com/DogAndHerDude/web-builder/internal/app/auth/auth_service"
@@ -15,6 +14,7 @@ import (
 	"github.com/DogAndHerDude/web-builder/internal/app/user/user_handlers"
 	"github.com/DogAndHerDude/web-builder/internal/app/user/user_service"
 	"github.com/DogAndHerDude/web-builder/internal/pkg/builder"
+	"github.com/DogAndHerDude/web-builder/internal/pkg/env"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
 	"github.com/DogAndHerDude/web-builder/publisher"
 
