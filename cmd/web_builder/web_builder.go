@@ -20,7 +20,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
 )
 
 func setupCORS(s *echo.Echo) {
@@ -59,7 +58,7 @@ func main() {
 	setupCORS(server)
 	server.Use(middleware.CSRF())
 	server.Use(middleware.Logger())
-	server.Logger.SetLevel(log.DEBUG)
+	// server.Logger.SetLevel(log.DEBUG)
 	auth_handlers.RegisterHandlers(apiGroup, userService, authService)
 	user_handlers.RegisterHandlers(userService, apiGroup)
 	site_handlers.RegisterHandlers(apiGroup, siteService)

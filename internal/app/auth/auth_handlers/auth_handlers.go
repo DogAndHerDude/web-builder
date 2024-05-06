@@ -6,6 +6,7 @@ import (
 	"github.com/DogAndHerDude/web-builder/internal/app/auth/auth_service"
 	"github.com/DogAndHerDude/web-builder/internal/app/user/user_service"
 	hash_utils "github.com/DogAndHerDude/web-builder/internal/pkg/hash_utils"
+	"github.com/DogAndHerDude/web-builder/internal/pkg/jwt_utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -87,6 +88,18 @@ func (h *AuthHandlers) Authenticate(c echo.Context) error {
 	return nil
 }
 
+func (h *AuthHandlers) Authorize(c echo.Context) error {
+	_, ok := c.Get("user").(jwt_utils.Claims)
+	if !ok {
+		// TODO: remove cookie
+		return echo.NewHTTPError(http.StatusUnauthorized)
+	}
+
+	c.NoContent(http.StatusOK)
+
+	return nil
+}
+
 func RegisterHandlers(e *echo.Group, u user_service.IUserService, a auth_service.IAuthService) {
 	h := &AuthHandlers{
 		userService: u,
@@ -95,4 +108,5 @@ func RegisterHandlers(e *echo.Group, u user_service.IUserService, a auth_service
 	subGroup := e.Group("/auth")
 	subGroup.POST("/signup", h.Signup)
 	subGroup.POST("/authenticate", h.Authenticate)
+	subGroup.GET("/authorize", h.Authorize)
 }
