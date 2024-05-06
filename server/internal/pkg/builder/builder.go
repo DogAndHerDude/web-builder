@@ -27,8 +27,14 @@ type PageBuildResult struct {
 	Pages   []*PageBuildResult
 }
 
+type PageBuildError struct {
+	PageID string
+	Error  error
+}
+
 type BuildResult struct {
 	Pages   []*PageBuildResult
+	Errors  []PageBuildError
 	SiteMap string
 }
 
@@ -218,8 +224,7 @@ func (s *SiteBuilderService) BuildSite(site *db.Site) (*BuildResult, error) {
 	return siteOutput, nil
 }
 
-func buildPageTreeConcurrent(page *db.Page, output chan<- *PageBuildResult, buildErr chan<- error, wg *sync.WaitGroup) {
-	defer close(output)
+func buildPageTreeConcurrent(page *db.Page, output chan<- *PageBuildResult, buildErr chan<- PageBuildError, wg *sync.WaitGroup) {
 	defer wg.Done()
 	pageOutput := &PageBuildResult{
 		Slug: page.Slug,
@@ -228,7 +233,10 @@ func buildPageTreeConcurrent(page *db.Page, output chan<- *PageBuildResult, buil
 	if len(page.Body) > 0 {
 		pageHTML, err := buildPageHTML(page)
 		if err != nil {
-			buildErr <- err
+			buildErr <- PageBuildError{
+				PageID: page.ID,
+				Error:  err,
+			}
 			return
 		}
 
@@ -239,7 +247,10 @@ func buildPageTreeConcurrent(page *db.Page, output chan<- *PageBuildResult, buil
 		for _, subPage := range page.Pages {
 			subPageHTML, err := buildPageHTML(subPage)
 			if err != nil {
-				buildErr <- err
+				buildErr <- PageBuildError{
+					PageID: subPage.ID,
+					Error:  err,
+				}
 				return
 			}
 
@@ -254,41 +265,41 @@ func buildPageTreeConcurrent(page *db.Page, output chan<- *PageBuildResult, buil
 	output <- pageOutput
 }
 
-func (b *SiteBuilderService) BuildSiteConcurrent(site *db.Site) (*BuildResult, error) {
+func (b *SiteBuilderService) BuildSiteConcurrent(site *db.Site) *BuildResult {
+	wg := &sync.WaitGroup{}
 	var pages []*PageBuildResult
-	var err error
-	var wg *sync.WaitGroup
-	output := make(chan *PageBuildResult, len(site.Pages))
-	buildErr := make(chan error)
+	buildErrors := []PageBuildError{}
+	outputChans := make(chan *PageBuildResult, len(site.Pages))
+	errorChans := make(chan PageBuildError, len(site.Pages))
+
+	defer close(outputChans)
+	defer close(errorChans)
 
 	for _, page := range site.Pages {
 		wg.Add(1)
-		go buildPageTreeConcurrent(page, output, buildErr, wg)
+		go buildPageTreeConcurrent(page, outputChans, errorChans, wg)
 	}
 
 	select {
-	case page := <-output:
+	case page := <-outputChans:
 		pages = append(pages, page)
-	case errResult := <-buildErr:
+	case err := <-errorChans:
 		// Errors get overriden here
 		// Should use a stack perhaps?
 		// Exit early maybe if one error occurs?
 		// can't build the rest of the site though
-		err = errResult
+		buildErrors = append(buildErrors, err)
 	}
 
 	wg.Wait()
 
-	if err != nil {
-		return nil, err
-	}
-
 	siteOutput := &BuildResult{
-		Pages: pages,
+		Pages:  pages,
+		Errors: buildErrors,
 		// TODO: build sitemap
 	}
 
-	return siteOutput, nil
+	return siteOutput
 }
 
 func New() *SiteBuilderService {

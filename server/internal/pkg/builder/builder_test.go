@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DogAndHerDude/web-builder/db"
+	"github.com/labstack/gommon/log"
 )
 
 func TestTreeNodeToHTMLTagOnlyText(t *testing.T) {
@@ -155,5 +156,63 @@ func TestBuildNodeHTMLTagWithAttributes(t *testing.T) {
 
 	if !strings.Contains(strings.ReplaceAll(strings.ReplaceAll(expected, "\n", ""), " ", ""), strings.ReplaceAll(strings.ReplaceAll(result, "\n", ""), " ", "")) {
 		t.Fatalf(`buildPageHTML expected templates to match but they did not`)
+	}
+}
+
+func TestBuildSiteConcurrent(t *testing.T) {
+	site := &db.Site{
+		Pages: []*db.Page{
+			{
+				ID:    "1",
+				Title: "Homepage",
+				Slug:  "homepage",
+				Body: []*db.HTMLNode{
+					{
+						Tag: "H1",
+						Children: []*db.HTMLNode{
+							{
+								Tag:         "#text",
+								TextContent: "Hi",
+							},
+						},
+					},
+				},
+			},
+			{
+				ID:    "2",
+				Title: "About",
+				Slug:  "about",
+				Body: []*db.HTMLNode{
+					{
+						Tag: "H1",
+						Children: []*db.HTMLNode{
+							{
+								Tag:         "#text",
+								TextContent: "About",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	service := New()
+
+	result := service.BuildSiteConcurrent(site)
+
+	if result == nil {
+		t.Fatalf("Result is nil")
+	}
+
+	if len(result.Errors) > 0 {
+		for err := range result.Errors {
+			log.Error(err)
+		}
+
+		t.Fatalf("Build ended with errors")
+	}
+
+	if len(result.Pages) == 0 {
+		t.Fatalf("Build has no pages built")
 	}
 }
