@@ -3,7 +3,10 @@ package site_handlers
 import (
 	"net/http"
 
+<<<<<<< HEAD:server/internal/app/site/site_handlers/site_handlers.go
 	"github.com/DogAndHerDude/web-builder/internal/app/site/site_service"
+=======
+>>>>>>> 973db0e (chore(project): udpate imports and add build targets):server/internal/app/site/handlers.go
 	"github.com/DogAndHerDude/web-builder/internal/pkg/jwt_utils"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
 

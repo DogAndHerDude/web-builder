@@ -3,7 +3,10 @@ package user_handlers
 import (
 	"net/http"
 
+<<<<<<< HEAD:server/internal/app/user/user_handlers/user_handlers.go
 	"github.com/DogAndHerDude/web-builder/internal/app/user/user_service"
+=======
+>>>>>>> 973db0e (chore(project): udpate imports and add build targets):server/user/handlers.go
 	"github.com/DogAndHerDude/web-builder/internal/pkg/jwt_utils"
 	custom_middleware "github.com/DogAndHerDude/web-builder/middleware"
 
