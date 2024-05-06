@@ -1,21 +1,8 @@
-# build output
-dist/
-
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# environment variables
+package-lock.json
+package.json
+node_modules
+build
+# Keep environment variables out of version control
 .env
-.env.production
-
-# macOS-specific files
-.DS_Store
+dev.db
+dev.db-journal
