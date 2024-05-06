@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"app/db"
+	"github.com/DogAndHerDude/web-builder/db"
 )
 
 func TestTreeNodeToHTMLTagOnlyText(t *testing.T) {
