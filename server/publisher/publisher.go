@@ -4,9 +4,8 @@ import (
 	"os"
 
 	git_internal "github.com/DogAndHerDude/web-builder/git"
-
-	"github.com/DogAndHerDude/web-builder/builder"
-	"github.com/DogAndHerDude/web-builder/db"
+	"github.com/DogAndHerDude/web-builder/internal/app/db"
+	"github.com/DogAndHerDude/web-builder/internal/pkg/builder"
 
 	"github.com/go-git/go-git/v5"
 )

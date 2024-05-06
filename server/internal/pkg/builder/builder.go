@@ -39,8 +39,8 @@ type BuildResult struct {
 }
 
 type SiteBuilder interface {
-	BuildSite(site *db.Site) (*BuildResult, error)
-	BuildSiteConcurrent(site *db.Site) (*BuildResult, error)
+	BuildSite(site *db.Site) *BuildResult
+	BuildSiteConcurrent(site *db.Site) *BuildResult
 }
 
 type SiteBuilderService struct{}
@@ -204,24 +204,27 @@ func buildPageTree(page *db.Page) (*PageBuildResult, error) {
 	return output, nil
 }
 
-func (s *SiteBuilderService) BuildSite(site *db.Site) (*BuildResult, error) {
+func (s *SiteBuilderService) BuildSite(site *db.Site) *BuildResult {
 	output := make([]*PageBuildResult, 0)
+	// buildErrors := make([]PageBuildError, 0)
 
 	for _, page := range site.Pages {
-		pageOutput, err := buildPageTree(page)
-		if err != nil {
-			return nil, err
-		}
+		// TODO: Refactor error output
+		pageOutput, _ := buildPageTree(page)
+		//if err != nil {
+		// buildErrors := append(buildErrors, err)
+		//}
 
 		output = append(output, pageOutput)
 	}
 
 	siteOutput := &BuildResult{
 		Pages: output,
+		// Errors: buildErrors,
 		// TODO: build sitemap
 	}
 
-	return siteOutput, nil
+	return siteOutput
 }
 
 func buildPageTreeConcurrent(page *db.Page, output chan<- *PageBuildResult, buildErr chan<- PageBuildError, wg *sync.WaitGroup) {

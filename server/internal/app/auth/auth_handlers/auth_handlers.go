@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/DogAndHerDude/web-builder/internal/app/auth/auth_service"
+	"github.com/DogAndHerDude/web-builder/internal/app/user/user_service"
 	hash_utils "github.com/DogAndHerDude/web-builder/internal/pkg/hash_utils"
-	"github.com/DogAndHerDude/web-builder/user"
 
 	"github.com/labstack/echo/v4"
 )
@@ -23,7 +23,7 @@ type LoginPayload struct {
 }
 
 type AuthHandlers struct {
-	userService user.IUserService
+	userService user_service.IUserService
 	authService auth_service.IAuthService
 }
 
@@ -87,7 +87,7 @@ func (h *AuthHandlers) Authenticate(c echo.Context) error {
 	return nil
 }
 
-func RegisterHandlers(e *echo.Group, u user.IUserService, a auth_service.IAuthService) {
+func RegisterHandlers(e *echo.Group, u user_service.IUserService, a auth_service.IAuthService) {
 	h := &AuthHandlers{
 		userService: u,
 		authService: a,
