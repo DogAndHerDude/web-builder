@@ -205,7 +205,7 @@ func TestBuildSiteConcurrent(t *testing.T) {
 	}
 
 	if len(result.Errors) > 0 {
-		for err := range result.Errors {
+		for _, err := range result.Errors {
 			log.Error(err)
 		}
 
