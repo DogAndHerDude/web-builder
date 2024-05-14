@@ -66,7 +66,7 @@ func (h *AuthHandlers) Signup(c echo.Context) error {
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 	})
-	c.String(http.StatusAccepted, "Accepted")
+	c.NoContent(http.StatusCreated)
 
 	return nil
 }
