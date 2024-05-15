@@ -154,7 +154,7 @@ const (
 	Outlet TemplateElement = "OUTLET"
 )
 
-type TemplateHTMLElementUnion interface {
+type TemplateOrHTMLElement interface {
 	isElement()
 }
 
@@ -227,8 +227,14 @@ type HTMLNode struct {
 }
 
 type TemplateNode struct {
-	HTMLNode
-	Tag TemplateHTMLElementUnion
+	Tag              TemplateOrHTMLElement
+	TextContent      string
+	Dependency       string
+	Attributes       map[string]string // key=value values
+	ComponentID      string
+	ComponentVersion string
+	ClassList        []string
+	Children         []*HTMLNode
 }
 
 type CustomTemplate struct {
@@ -239,8 +245,11 @@ type CustomTemplate struct {
 }
 
 type SiteTemplate struct {
-	CustomTemplate
+	ID            string
+	Nodes         []*TemplateNode
 	Pallete       []string
 	FontFamily    string
 	FontFamilyURL string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
