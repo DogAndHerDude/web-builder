@@ -4,123 +4,149 @@ import (
 	"time"
 )
 
-type HTMLElement string
+type HTMLElement int
 
 const (
-	A          HTMLElement = "A"
-	Abbr       HTMLElement = "ABBR"
-	Address    HTMLElement = "ADDRESS"
-	Area       HTMLElement = "AREA"
-	Article    HTMLElement = "ARTICLE"
-	Aside      HTMLElement = "ASIDE"
-	Audio      HTMLElement = "AUDIO"
-	B          HTMLElement = "B"
-	Base       HTMLElement = "BASE"
-	Bdi        HTMLElement = "BDI"
-	Bdo        HTMLElement = "BDO"
-	Blockquote HTMLElement = "BLOCKQUOTE"
-	Body       HTMLElement = "BODY"
-	Br         HTMLElement = "BR"
-	Button     HTMLElement = "BUTTON"
-	Canvas     HTMLElement = "CANVAS"
-	Caption    HTMLElement = "CAPTION"
-	Cite       HTMLElement = "CITE"
-	Code       HTMLElement = "CODE"
-	Col        HTMLElement = "COL"
-	Colgroup   HTMLElement = "COLGROUP"
-	Data       HTMLElement = "DATA"
-	Datalist   HTMLElement = "DATALIST"
-	Dd         HTMLElement = "DD"
-	Del        HTMLElement = "DEL"
-	Details    HTMLElement = "DETAILS"
-	Dfn        HTMLElement = "DFN"
-	Dialog     HTMLElement = "DIALOG"
-	Div        HTMLElement = "DIV"
-	Dl         HTMLElement = "DL"
-	Dt         HTMLElement = "DT"
-	Em         HTMLElement = "EM"
-	Embed      HTMLElement = "EMBED"
-	Fieldset   HTMLElement = "FIELDSET"
-	Figcaption HTMLElement = "FIGCAPTION"
-	Figure     HTMLElement = "FIGURE"
-	Footer     HTMLElement = "FOOTER"
-	Form       HTMLElement = "FORM"
-	H1         HTMLElement = "H1"
-	H2         HTMLElement = "H2"
-	H3         HTMLElement = "H3"
-	H4         HTMLElement = "H4"
-	H5         HTMLElement = "H5"
-	H6         HTMLElement = "H6"
-	Head       HTMLElement = "HEAD"
-	Header     HTMLElement = "HEADER"
-	Hr         HTMLElement = "HR"
-	Html       HTMLElement = "HTML"
-	I          HTMLElement = "I"
-	Iframe     HTMLElement = "IFRAME"
-	Img        HTMLElement = "IMG"
-	Input      HTMLElement = "INPUT"
-	Ins        HTMLElement = "INS"
-	Kbd        HTMLElement = "KBD"
-	Label      HTMLElement = "LABEL"
-	Legend     HTMLElement = "LEGEND"
-	Li         HTMLElement = "LI"
-	Link       HTMLElement = "LINK"
-	Main       HTMLElement = "MAIN"
-	MapElement HTMLElement = "MAP"
-	Mark       HTMLElement = "MARK"
-	Meta       HTMLElement = "META"
-	Meter      HTMLElement = "METER"
-	Nav        HTMLElement = "NAV"
-	Noscript   HTMLElement = "NOSCRIPT"
-	Object     HTMLElement = "OBJECT"
-	Ol         HTMLElement = "OL"
-	Optgroup   HTMLElement = "OPTGROUP"
-	Option     HTMLElement = "OPTION"
-	Output     HTMLElement = "OUTPUT"
-	P          HTMLElement = "P"
-	Param      HTMLElement = "PARAM"
-	Picture    HTMLElement = "PICTURE"
-	Pre        HTMLElement = "PRE"
-	Progress   HTMLElement = "PROGRESS"
-	Q          HTMLElement = "Q"
-	Rp         HTMLElement = "RP"
-	Rt         HTMLElement = "RT"
-	Ruby       HTMLElement = "RUBY"
-	S          HTMLElement = "S"
-	Samp       HTMLElement = "SAMP"
-	Script     HTMLElement = "SCRIPT"
-	Section    HTMLElement = "SECTION"
-	Select     HTMLElement = "SELECT"
-	Small      HTMLElement = "SMALL"
-	Source     HTMLElement = "SOURCE"
-	Span       HTMLElement = "SPAN"
-	Strong     HTMLElement = "STRONG"
-	Style      HTMLElement = "STYLE"
-	Sub        HTMLElement = "SUB"
-	Summary    HTMLElement = "SUMMARY"
-	Sup        HTMLElement = "SUP"
-	Svg        HTMLElement = "SVG"
-	Table      HTMLElement = "TABLE"
-	Tbody      HTMLElement = "TBODY"
-	Td         HTMLElement = "TD"
-	Template   HTMLElement = "TEMPLATE"
-	Textarea   HTMLElement = "TEXTAREA"
-	Tfoot      HTMLElement = "TFOOT"
-	Th         HTMLElement = "TH"
-	Thead      HTMLElement = "THEAD"
-	Time       HTMLElement = "TIME"
-	Title      HTMLElement = "TITLE"
-	Tr         HTMLElement = "TR"
-	Track      HTMLElement = "TRACK"
-	U          HTMLElement = "U"
-	Ul         HTMLElement = "UL"
-	Var        HTMLElement = "VAR"
-	Video      HTMLElement = "VIDEO"
-	Wbr        HTMLElement = "WBR"
-	Text       HTMLElement = "#text"
-
+	A HTMLElement = iota
+	Abbr
+	Address
+	Area
+	Article
+	Aside
+	Audio
+	B
+	Base
+	Bdi
+	Bdo
+	Blockquote
+	Body
+	Br
+	Button
+	Canvas
+	Caption
+	Cite
+	Code
+	Col
+	Colgroup
+	Data
+	Datalist
+	Dd
+	Del
+	Details
+	Dfn
+	Dialog
+	Div
+	Dl
+	Dt
+	Em
+	Embed
+	Fieldset
+	Figcaption
+	Figure
+	Footer
+	Form
+	H1
+	H2
+	H3
+	H4
+	H5
+	H6
+	Head
+	Header
+	Hr
+	Html
+	I
+	Iframe
+	Img
+	Input
+	Ins
+	Kbd
+	Label
+	Legend
+	Li
+	Link
+	Main
+	Map
+	Mark
+	Menu
+	Menuitem
+	Meta
+	Meter
+	Nav
+	Noscript
+	Object
+	Ol
+	Optgroup
+	Option
+	Output
+	P
+	Param
+	Picture
+	Pre
+	Progress
+	Q
+	Rp
+	Rt
+	Ruby
+	S
+	Samp
+	Script
+	Section
+	Select
+	Slot
+	Small
+	Source
+	Span
+	Strong
+	Style
+	Sub
+	Summary
+	Sup
+	Table
+	Tbody
+	Td
+	Template
+	Textarea
+	Tfoot
+	Th
+	Thead
+	Time
+	Title
+	Tr
+	Track
+	U
+	Ul
+	Var
+	Video
+	Wbr
+	Text
 	// Internal template elements
 )
+
+func (e HTMLElement) String() string {
+	elements := [...]string{
+		"A", "ABBR", "ADDRESS", "AREA", "ARTICLE", "ASIDE", "AUDIO",
+		"B", "BASE", "BDI", "BDO", "BLOCKQUOTE", "BODY", "BR", "BUTTON",
+		"CANVAS", "CAPTION", "CITE", "CODE", "COL", "COLGROUP", "DATA",
+		"DATALIST", "DD", "DEL", "DETAILS", "DFN", "DIALOG", "DIV", "DL", "DT",
+		"EM", "EMBED", "FIELDSET", "FIGCAPTION", "FIGURE", "FOOTER", "FORM",
+		"H1", "H2", "H3", "H4", "H5", "H6", "HEAD", "HEADER", "HR", "HTML",
+		"I", "IFRAME", "IMG", "INPUT", "INS", "KBD", "LABEL", "LEGEND", "LI",
+		"LINK", "MAIN", "MAP", "MARK", "MENU", "MENUITEM", "META", "METER",
+		"NAV", "NOSCRIPT", "OBJECT", "OL", "OPTGROUP", "OPTION", "OUTPUT", "P",
+		"PARAM", "PICTURE", "PRE", "PROGRESS", "Q", "RP", "RT", "RUBY", "S",
+		"SAMP", "SCRIPT", "SECTION", "SELECT", "SLOT", "SMALL", "SOURCE", "SPAN",
+		"STRONG", "STYLE", "SUB", "SUMMARY", "SUP", "TABLE", "TBODY", "TD",
+		"TEMPLATE", "TEXTAREA", "TFOOT", "TH", "THEAD", "TIME", "TITLE", "TR",
+		"TRACK", "U", "UL", "VAR", "VIDEO", "WBR",
+	}
+
+	if int(e) < len(elements) {
+		return elements[e]
+	}
+
+	return "UNKNOWN"
+}
 
 type TemplateElement string
 
